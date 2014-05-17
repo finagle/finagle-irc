@@ -1,7 +1,7 @@
-package com.twitter.finagle.irc.protocol
+package com.twitter.finagle.irc
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.transport.Transport
+import com.twitter.finagle.transport.{Transport => FTransport}
 import com.twitter.concurrent.{Offer, Broker}
 import com.twitter.util.{Closable, Future, NonFatal, Promise, Time}
 import org.jboss.netty.channel._
@@ -13,8 +13,8 @@ case class IrcHandle(
   close: () => Future[Unit]
 )
 
-sealed trait IrcDispatcher extends Closable {
-  val trans: Transport[Message, Message]
+sealed trait Dispatcher extends Closable {
+  val trans: FTransport[Message, Message]
 
   private[this] val inbound = new Broker[Message]
   private[this] val onClose = new Promise[Unit]
@@ -39,8 +39,8 @@ sealed trait IrcDispatcher extends Closable {
 }
 
 private[finagle] class ClientDispatcher(
-  val trans: Transport[Message, Message]
-) extends Service[Offer[Message], IrcHandle] with IrcDispatcher {
+  val trans: FTransport[Message, Message]
+) extends Service[Offer[Message], IrcHandle] with Dispatcher {
   def apply(out: Offer[Message]): Future[IrcHandle] = {
     loop(out)
     Future.value(handle)
@@ -48,8 +48,8 @@ private[finagle] class ClientDispatcher(
 }
 
 private[finagle] class ServerDispatcher(
-  val trans: Transport[Message, Message],
+  val trans: FTransport[Message, Message],
   service: Service[IrcHandle, Offer[Message]]
-) extends IrcDispatcher with Closable {
+) extends Dispatcher with Closable {
   service(handle) onSuccess loop
 }

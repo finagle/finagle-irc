@@ -1,4 +1,4 @@
-package com.twitter.finagle.irc.protocol
+package com.twitter.finagle.irc
 
 import org.jboss.netty.buffer.ChannelBuffer
 

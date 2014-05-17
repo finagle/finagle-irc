@@ -1,6 +1,6 @@
-package com.twitter.finagle.irc.protocol
+package com.twitter.finagle.irc
 
-sealed abstract class Response(val code: Int) extends Message
+abstract class Response(val code: Int) extends Message
 
 case class ResponseWrapper(server: String, nick: String, resp: Response) extends Response(resp.code) {
   def encode = ":%s %03d %s %s".format(server, code, nick, resp.encode)

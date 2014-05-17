@@ -1,16 +1,16 @@
-package com.twitter.finagle.irc.protocol
+package com.twitter.finagle.irc
 
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.finagle.transport.Transport
+import com.twitter.finagle.transport.{Transport => FTransport}
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Time}
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import org.jboss.netty.util.CharsetUtil
 
-case class IrcTransport(
-  trans: Transport[ChannelBuffer, ChannelBuffer],
+case class Transport(
+  trans: FTransport[ChannelBuffer, ChannelBuffer],
   decoder: (List[String] => Option[Message]) = DefaultIrcDecoder
-) extends Transport[Message, Message] {
+) extends FTransport[Message, Message] {
   private[this] val Delimiter = "\r\n"
   private[this] val ServerUser = """([^!]+)!?([^@]*)?@?(.+)?""".r
   @volatile private[this] var buf: Buf = Buf.Empty

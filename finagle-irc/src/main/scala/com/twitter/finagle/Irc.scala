@@ -1,11 +1,10 @@
 package com.twitter.finagle
 
 import com.twitter.finagle.irc._
-import com.twitter.finagle.irc.protocol._
 import com.twitter.finagle.client._
 import com.twitter.finagle.netty3._
 import com.twitter.finagle.server._
-import com.twitter.finagle.transport.Transport
+import com.twitter.finagle.transport.{Transport => FTransport}
 import com.twitter.util.Future
 import com.twitter.concurrent.{Broker, Offer}
 import java.net.SocketAddress
@@ -22,12 +21,12 @@ object NettyTrans extends Netty3Transporter[ChannelBuffer, ChannelBuffer](
 object IrcClient extends DefaultClient[Offer[Message], IrcHandle](
   name = "irc",
   endpointer = Bridge[Message, Message,  Offer[Message], IrcHandle](
-    NettyTrans(_, _) map { IrcTransport(_, DefaultIrcDecoder) }, new ClientDispatcher(_)))
+    NettyTrans(_, _) map { Transport(_, DefaultIrcDecoder) }, new ClientDispatcher(_)))
 
 object IrcListener extends Listener[Message, Message] {
   private[this] val nettyListener = Netty3Listener[ChannelBuffer, ChannelBuffer]("irc", PipelineFactory)
-  def listen(addr: SocketAddress)(serveTransport: Transport[Message, Message] => Unit): ListeningServer =
-    nettyListener.listen(addr) { t => serveTransport(IrcTransport(t)) }
+  def listen(addr: SocketAddress)(serveTransport: FTransport[Message, Message] => Unit): ListeningServer =
+    nettyListener.listen(addr) { t => serveTransport(Transport(t)) }
 }
 
 object IrcServer extends DefaultServer[IrcHandle, Offer[Message], Message, Message](
