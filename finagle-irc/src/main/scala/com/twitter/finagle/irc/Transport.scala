@@ -4,19 +4,20 @@ import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.finagle.transport.{Transport => FTransport}
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Time}
+import java.nio.charset.Charset
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
-import org.jboss.netty.util.CharsetUtil
 
 case class Transport(
   trans: FTransport[ChannelBuffer, ChannelBuffer],
   decoder: (List[String] => Option[Message]) = DefaultIrcDecoder
 ) extends FTransport[Message, Message] {
+  private[this] val Utf8 = Charset.forName("UTF-8")
   private[this] val Delimiter = "\r\n"
   private[this] val ServerUser = """([^!]+)!?([^@]*)?@?(.+)?""".r
   @volatile private[this] var buf: Buf = Buf.Empty
 
   def write(msg: Message): Future[Unit] =
-    trans.write(ChannelBuffers.wrappedBuffer((msg.encode + Delimiter).getBytes(CharsetUtil.UTF_8)))
+    trans.write(ChannelBuffers.wrappedBuffer((msg.encode + Delimiter).getBytes(Utf8)))
 
   def read(): Future[Message] = buf match {
     case Buf.Utf8(str) if str.contains(Delimiter) =>
