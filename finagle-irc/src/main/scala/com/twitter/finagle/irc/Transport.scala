@@ -29,7 +29,7 @@ case class Transport(
           Buf.Utf8(newStr + post)
       }
 
-      Future.value(decode(msgs(0)))
+      Future(decode(msgs(0)))
     case _ =>
       trans.read() flatMap { m =>
         buf = buf.concat(ChannelBufferBuf(m))
