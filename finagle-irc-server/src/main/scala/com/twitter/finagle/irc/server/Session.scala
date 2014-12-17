@@ -1,7 +1,6 @@
 package com.twitter.finagle.irc.server
 
 import com.twitter.finagle.irc._
-import com.twitter.finagle.irc.protocol._
 import com.twitter.concurrent.Broker
 import com.twitter.util.Future
 import scala.collection.mutable
