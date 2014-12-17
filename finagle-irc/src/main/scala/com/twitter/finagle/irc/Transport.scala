@@ -38,7 +38,7 @@ case class Transport(
       }
   }
 
-  def isOpen = trans.isOpen
+  def status = trans.status
   val onClose = trans.onClose
   def localAddress = trans.localAddress
   def remoteAddress = trans.remoteAddress
